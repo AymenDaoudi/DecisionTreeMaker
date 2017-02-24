@@ -1,0 +1,34 @@
+﻿<Window x:Class="DecisionTreeMaker.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
+        xmlns:viewModel="clr-namespace:DecisionTreeMaker.ViewModel"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:command="http://www.galasoft.ch/mvvmlight"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525"
+        DataContext="{Binding MainViewModel, Source={StaticResource ViewModelLocator}}">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Loaded">
+                <command:EventToCommand
+                    Command="{Binding Loaded, Mode=OneWay}"
+                    PassEventArgsToCommand="False" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+    <Grid>
+        <zoom:ZoomControl  Zoom="0.2" 
+                           ZoomBoxOpacity="0.5" 
+                           Background="#ff656565">
+            
+            <viewModel:PocGraphLayout x:Name="graphLayout" 
+                                      Margin="10"
+                                      Graph="{Binding Path=GraphTree, Mode=OneWay}"
+                                      LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType, Mode=OneWay}"
+                                      OverlapRemovalAlgorithmType="FSA"
+                                      HighlightAlgorithmType="Simple" />
+
+        </zoom:ZoomControl>
+    </Grid>
+</Window>
