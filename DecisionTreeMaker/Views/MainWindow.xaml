@@ -16,7 +16,8 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="DecisionTreeMaker"
+        WindowState="Maximized"
         DataContext="{Binding MainViewModel, Source={StaticResource ViewModelLocator}}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="Loaded">
@@ -27,7 +28,8 @@
         </i:Interaction.Triggers>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid>
@@ -35,20 +37,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ComboBox Margin="5"
-                      ItemsSource="{Binding GraphLayoutTypes}"
-                      SelectedItem="{Binding GraphLayoutType, Mode=TwoWay}"/>
-            <Grid Grid.Column="1"
-                  Margin="5,0">
+            <Grid Grid.Column="0"
+                  Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox AcceptsReturn="False"
-                         IsReadOnly="True"
-                         Margin="5"
-                         Text="{Binding DataSetFilePath}"/>
-                <Button Grid.Column="1" Content="Open CSV file">
+                <Button Grid.Column="0" Content="Open CSV file">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <command:EventToCommand
@@ -56,17 +51,47 @@
                     PassEventArgsToCommand="False" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
-                </Button> 
+                </Button>
+                <TextBox Grid.Column="1"
+                         AcceptsReturn="False"
+                         IsReadOnly="True"
+                         Margin="5,0"
+                         Foreground="Gray"
+                         Text="{Binding DataSetFilePath}"/>
             </Grid>
+            <ComboBox Grid.Column="1"
+                      Padding="0"
+                      VerticalAlignment="Bottom"
+                      Margin="5"
+                      ItemsSource="{Binding GraphLayoutTypes}"
+                      SelectedItem="{Binding GraphLayoutType, Mode=TwoWay}"/>
+            
         </Grid>
-        <Grid Grid.Row="1">
+        <Border BorderBrush="LightGray" 
+                BorderThickness="0,0,0,2"
+                Margin="20,0,20,5"
+                Grid.Row="1"/>
+        <Grid Grid.Row="2" Margin="0,5,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto" MinWidth="0">
+                <DataGrid ItemsSource="{Binding DataSet}" IsReadOnly="True"/>
+            </ScrollViewer>
+            <GridSplitter VerticalAlignment="Stretch" 
+                          HorizontalAlignment="Stretch"
+                          Margin="0"
+                          Width="5"
+                          ResizeDirection="Columns"
+                          materialDesign:ShadowAssist.Darken="True"
+                          ShowsPreview="True"
+                          Grid.Column="1"/>
             <zoom:ZoomControl Zoom="0.2" 
-                          ZoomBoxOpacity="0.5" 
-                          Background="#ff656565">
+                              Grid.Column="2"
+                              ZoomBoxOpacity="0.5" 
+                              Background="DimGray">
 
                 <viewModel:PocGraphLayout x:Name="graphLayout" 
                                       Margin="10"
@@ -76,7 +101,7 @@
                                       HighlightAlgorithmType="Simple" />
 
             </zoom:ZoomControl>
-            <DataGrid Grid.Column="1" ItemsSource="{Binding DataSet}"></DataGrid>
+            
         </Grid>
         
     </Grid>

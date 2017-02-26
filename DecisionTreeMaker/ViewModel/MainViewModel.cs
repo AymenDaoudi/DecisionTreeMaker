@@ -1,24 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Windows.Forms;
 using DecisionTreeMaker.Model;
 using FSharp.Data;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using Microsoft.FSharp.Collections;
-using Microsoft.FSharp.Core;
+using GraphSharp.Controls;
 using static DecisionTree;
 using static Types;
 using static CsvFileReader;
 
 namespace DecisionTreeMaker.ViewModel
 {
-    public class PocGraphLayout : GraphSharp.Controls.GraphLayout<Node, Branch, Tree> { }
+    public class PocGraphLayout : GraphLayout<Node, Branch, Tree> { }
     public class MainViewModel : ViewModelBase
     {
         #region Consts
@@ -50,7 +46,6 @@ namespace DecisionTreeMaker.ViewModel
                 DrawTreeGraph(LoadDataSetFile(DataSetFilePath));
             }
         }
-
         public string GraphLayoutType
         {
             get { return _graphLayoutType; }
@@ -125,7 +120,7 @@ namespace DecisionTreeMaker.ViewModel
         private DataTable MakeDataSet(CsvFile data)
         {
             var dataTable = new DataTable("DataTable");
-            dataTable.Columns.AddRange(CsvFileReader.getCsvFileHeaders(data).Select(header => new DataColumn(header, typeof(string))).ToArray());
+            dataTable.Columns.AddRange(getCsvFileHeaders(data).Select(header => new DataColumn(header, typeof(string))).ToArray());
             var t = getRows(data).ToList();
             t.Select(csvRow => dataTable.Rows.Add(csvRow.Cast<object>().ToArray())).ToList();
             return dataTable;
@@ -206,7 +201,6 @@ namespace DecisionTreeMaker.ViewModel
                 }   
             }
         }
-
         public RelayCommand OpenFileCommand
         {
             get { return _openFileCommand; }

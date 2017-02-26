@@ -52,13 +52,3 @@ c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionT
 c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\MaterialDesignColors.pdb
 c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\MaterialDesignThemes.Wpf.pdb
 c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\MaterialDesignThemes.Wpf.xml
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Core.dll
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Interfaces.dll
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Linq.dll
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.PlatformServices.dll
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Windows.Threading.dll
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Core.xml
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Interfaces.xml
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Linq.xml
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.PlatformServices.xml
-c:\users\aymen\documents\visual studio 2015\Projects\DecisionTreeMaker\DecisionTreeMaker\bin\Debug\System.Reactive.Windows.Threading.xml
