@@ -3,12 +3,13 @@
 open HelperFunctions
 open Types
 open Converters
+open CsvFileReader
 open System.Collections.Generic
 open System.Linq
 open FSharp.Data
 open FSharp.Data.CsvExtensions
 
-let readCsvFile path = CsvFile.Load("C:\Users\Aymen\Desktop\TrainingSet.csv")
+
 
 let reduce (rows:seq<CsvRow>) 
            (parents:seq<node>) :list<CsvRow> = let mutable reduced = rows |> Seq.toList 
@@ -25,12 +26,12 @@ let reduce (rows:seq<CsvRow>)
                                                                      |> immutableToMutableNodeList)
                                                mutableToImmutableNodeList reduced
 
-let tuplesCount (rows:seq<CsvRow>) = Seq.length rows
+
 
 let tuplesCountPerClass (rows:seq<CsvRow>) = rows |> Seq.groupBy (fun row -> row?Class)
                                                   |> Seq.map (fun tuple -> Seq.length (snd tuple))
 
-let Pi n s = ((float)n/(float)(tuplesCount (s)))
+let Pi n s = ((float)n/(float)(rowsCount (s)))
 
 let entropy (rows:seq<CsvRow>) = tuplesCountPerClass rows |> Seq.map (fun n -> - (Pi n rows) * log2(Pi n rows))
                                                           |> Seq.sum
@@ -43,7 +44,7 @@ let entropiesDependingOn (rows:seq<CsvRow>)
 
 let gain (s:seq<CsvRow>) 
          (a:string) = entropy s - (s |> Seq.groupBy (fun row -> row.[a])
-                                     |> Seq.map (fun groupedRows -> ((float)(Seq.length (snd groupedRows))/(float)(tuplesCount s)) * entropy (snd groupedRows))
+                                     |> Seq.map (fun groupedRows -> ((float)(Seq.length (snd groupedRows))/(float)(rowsCount s)) * entropy (snd groupedRows))
                                      |> Seq.sum)
 
 let gainSuchAs (s:seq<CsvRow>) 
@@ -54,19 +55,22 @@ let gainSuchAs (s:seq<CsvRow>)
                                     |> Seq.filter (fun groupedRows -> (fst groupedRows) = b)
                                     |> Seq.head
                                     |> snd
-                                    |> gain <| c
+                                    |> gain 
+                                    <| c
 
 let rec makeTree (data:CsvFile)
                  (excludedHeaders:List<string>)
                  (parents:seq<node> option)
                  : list<node> option = match parents with
-                                       | None -> match data.Headers.Value |> Array.except excludedHeaders
-                                                                          |> Array.map (fun header -> gain data.Rows header)
-                                                                          |> Array.max with
+                                       | None -> match data |> getCsvFileHeaders
+                                                            |> Seq.except excludedHeaders
+                                                            |> Seq.map (fun header -> gain (getCsvFileRows data) header)
+                                                            |> Seq.max with
                                                  | 0. -> None
                                                  | _  -> let node = {
-                                                                       content = data.Headers.Value |> Array.except (excludedHeaders) 
-                                                                                                    |> Array.maxBy (fun header -> gain data.Rows header);
+                                                                       content = data |> getCsvFileHeaders
+                                                                                      |> Seq.except (excludedHeaders) 
+                                                                                      |> Seq.maxBy (fun header -> gain (getCsvFileRows data) header);
                                                                        branch = None;
                                                                        children = None;
                                                                        isLeaf = false;
@@ -81,22 +85,33 @@ let rec makeTree (data:CsvFile)
                                                                      };
                                                          Some ([node'])
                                        
-                                       | Some(parents) -> let bestBranchEntropies = entropiesDependingOn data.Rows parents
+                                       | Some(parents) -> let bestBranchEntropies = data |> getCsvFileRows
+                                                                                         |> entropiesDependingOn 
+                                                                                         <| parents
+
                                                           let children = bestBranchEntropies 
                                                                          |> Seq.map (fun bestBranch 
                                                                                        -> match (snd bestBranch) with
                                                                                           | 0. -> let node = {
-                                                                                                                content = data.Rows |> reduce <| parents
-                                                                                                                                    |> Seq.filter (fun row -> row?((Seq.last parents).content) = fst bestBranch)
-                                                                                                                                    |> Seq.map (fun row -> row?Class)        
-                                                                                                                                    |> Seq.head
+                                                                                                                content = data |> getCsvFileRows
+                                                                                                                               |> reduce 
+                                                                                                                               <| parents
+                                                                                                                               |> Seq.filter (fun row -> row?((Seq.last parents).content) = fst bestBranch)
+                                                                                                                               |> Seq.map (fun row -> row?Class)        
+                                                                                                                               |> Seq.head
+
                                                                                                                 branch = Some(fst bestBranch);
                                                                                                                 children = None;
                                                                                                                 isLeaf = true;
                                                                                                              }
                                                                                                   node
-                                                                                          | _ -> let attribut = data.Headers.Value |> Array.except excludedHeaders
-                                                                                                                                   |> Array.maxBy (fun attribut -> gainSuchAs data.Rows parents (fst bestBranch) attribut)                                                                                                                                
+                                                                                          | _ -> let attribut = data |> getCsvFileHeaders
+                                                                                                                     |> Seq.except excludedHeaders
+                                                                                                                     |> Seq.maxBy (fun attribut -> data |> getCsvFileRows 
+                                                                                                                                                        |> gainSuchAs 
+                                                                                                                                                        <| parents
+                                                                                                                                                        <| (fst bestBranch) 
+                                                                                                                                                        <| attribut)                                                                                                                                
                                                                                                  let node = {
                                                                                                                content = attribut;
                                                                                                                branch = Some(fst bestBranch);

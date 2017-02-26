@@ -8,3 +8,13 @@ C:\Users\Aymen\Documents\Visual Studio 2015\Projects\MachineLearning\MachineLear
 C:\Users\Aymen\Documents\Visual Studio 2015\Projects\MachineLearning\MachineLearningAlgorithms\bin\Debug\FSharp.Core.xml
 C:\Users\Aymen\Documents\Visual Studio 2015\Projects\MachineLearning\MachineLearningAlgorithms\obj\Debug\MachineLearningAlgorithms.dll
 C:\Users\Aymen\Documents\Visual Studio 2015\Projects\MachineLearning\MachineLearningAlgorithms\obj\Debug\MachineLearningAlgorithms.pdb
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\MachineLearningAlgorithms.XML
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\obj\Debug\MachineLearningAlgorithms.dll
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\obj\Debug\MachineLearningAlgorithms.pdb
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\MachineLearningAlgorithms.dll
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\MachineLearningAlgorithms.pdb
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\FSharp.Core.dll
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\FSharp.Data.dll
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\FSharp.Data.pdb
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\FSharp.Data.xml
+C:\Users\Aymen\Documents\Visual Studio 2015\Projects\DecisionTreeMaker\MachineLearningAlgorithms\bin\Debug\FSharp.Core.xml

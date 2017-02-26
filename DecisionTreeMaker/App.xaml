@@ -7,7 +7,6 @@
             <DataTemplate x:Key="NodeTemplate" DataType="{x:Type model:Node}">
                 <TextBlock Text="{Binding Path=Content, Mode=OneWay}" Foreground="White" Margin="10,5" />
             </DataTemplate>
-
             <Style TargetType="{x:Type graphsharp:VertexControl}">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -30,7 +29,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
             <Style TargetType="{x:Type graphsharp:EdgeControl}">
                 <Style.Resources>
                     <ToolTip x:Key="ToolTipContent">
@@ -42,6 +40,12 @@
                 </Style.Resources>
                 <Setter Property="ToolTip" Value="{StaticResource ToolTipContent}"/>
             </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 
         

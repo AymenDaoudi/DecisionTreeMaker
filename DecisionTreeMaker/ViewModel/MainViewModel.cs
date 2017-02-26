@@ -1,43 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Windows.Forms;
 using DecisionTreeMaker.Model;
+using FSharp.Data;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using static DecisionTree;
 using static Types;
+using static CsvFileReader;
 
 namespace DecisionTreeMaker.ViewModel
 {
     public class PocGraphLayout : GraphSharp.Controls.GraphLayout<Node, Branch, Tree> { }
     public class MainViewModel : ViewModelBase
     {
+        #region Consts
+
+        private const string OpenFileDialogFilter = "csv files (*.csv)|";
+        private const string ClassHeader = "Class";
+        #endregion
+
         #region Fields
-        private string _layoutAlgorithmType;
+
+        private string _dataSetFilePath;
+        private string _graphLayoutType;
         private Tree _graphTree;
-        private List<String> _layoutAlgorithmTypes = new List<string>();
-        private FSharpOption<FSharpList<node>> treeHead;
+        private List<String> _graphLayoutTypes = new List<string>();
+        private DataTable _dataSet;
         #endregion
 
         #region Properties
-        public string LayoutAlgorithmType
+
+        public string DataSetFilePath
         {
-            get { return _layoutAlgorithmType; }
+            get { return _dataSetFilePath; }
             set
             {
-                _layoutAlgorithmType = value; 
-                RaisePropertyChanged(nameof(LayoutAlgorithmType));
+                if (value == null) return;
+                _dataSetFilePath = value;
+                RaisePropertyChanged(nameof(DataSetFilePath));
+                PopulateDataSet(LoadDataSetFile(DataSetFilePath));
+                DrawTreeGraph(LoadDataSetFile(DataSetFilePath));
             }
         }
-        public List<string> LayoutAlgorithmTypes
+
+        public string GraphLayoutType
         {
-            get { return _layoutAlgorithmTypes; }
+            get { return _graphLayoutType; }
             set
             {
-                _layoutAlgorithmTypes = value; 
-                RaisePropertyChanged(nameof(LayoutAlgorithmTypes));
+                _graphLayoutType = value; 
+                RaisePropertyChanged(nameof(GraphLayoutType));
+            }
+        }
+        public List<string> GraphLayoutTypes
+        {
+            get { return _graphLayoutTypes; }
+            set
+            {
+                _graphLayoutTypes = value; 
+                RaisePropertyChanged(nameof(GraphLayoutTypes));
             }
         }
         public Tree GraphTree
@@ -49,23 +78,25 @@ namespace DecisionTreeMaker.ViewModel
                 RaisePropertyChanged(nameof(GraphTree));
             }
         }
-        
+        public DataTable DataSet
+        {
+            get { return _dataSet; }
+            set
+            {
+                _dataSet = value; 
+                RaisePropertyChanged(nameof(DataSet));
+            }
+        }
+
         #endregion
 
         public MainViewModel()
         {
             SetCommands();
-            var data = readCsvFile(@"C:\Users\Aymen\Desktop\TrainingSet.csv");
-            var excludedHeaders = new List<string> { "Class" };
-            treeHead = makeTree(data, excludedHeaders, null);
-            var graph = new Tree(false);
-            var tree = MakeTreeGraph(graph, treeHead.Value.Head);
-            GraphTree = graph;
         }
 
-
         #region Methods
-        private Branch AddNewGraphBranch(Node from, Node to, string branchContent, Tree graph)
+        private Branch AddNewBranchToGraph(Node from, Node to, string branchContent, Tree graph)
         {
             var newBranch = new Branch(branchContent, from, to);
 
@@ -86,35 +117,79 @@ namespace DecisionTreeMaker.ViewModel
                 var parent = new Node(tree.content, tree.isLeaf, tree.children.Value.Select(node => MakeTreeGraph(graph,node)).ToList());
                 graph.AddVertex(parent);
                 graph.AddVertexRange(parent.Children);
-                parent.Children.Select((node, i) => AddNewGraphBranch(parent, node, tree.children.Value[i].branch.Value, graph)).ToList();
+                parent.Children.Select((node, i) => AddNewBranchToGraph(parent, node, tree.children.Value[i].branch.Value, graph)).ToList();
                 return parent;
             }
         }
 
-
-        public void SetCommands()
+        private DataTable MakeDataSet(CsvFile data)
         {
-            Loaded = new RelayCommand(() =>
-            {
-                LayoutAlgorithmTypes.Add("BoundedFR");
-                LayoutAlgorithmTypes.Add("Circular");
-                LayoutAlgorithmTypes.Add("CompoundFDP");
-                LayoutAlgorithmTypes.Add("EfficientSugiyama");
-                LayoutAlgorithmTypes.Add("FR");
-                LayoutAlgorithmTypes.Add("ISOM");
-                LayoutAlgorithmTypes.Add("KK");
-                LayoutAlgorithmTypes.Add("LinLog");
-                LayoutAlgorithmTypes.Add("Tree");
+            var dataTable = new DataTable("DataTable");
+            dataTable.Columns.AddRange(CsvFileReader.getCsvFileHeaders(data).Select(header => new DataColumn(header, typeof(string))).ToArray());
+            var t = getRows(data).ToList();
+            t.Select(csvRow => dataTable.Rows.Add(csvRow.Cast<object>().ToArray())).ToList();
+            return dataTable;
+        }
 
-                //Pick a default Layout Algorithm Type
-                LayoutAlgorithmType = "EfficientSugiyama";
-            });
+        private void SetCommands()
+        {
+            Loaded = new RelayCommand(SetGraphLayoutTypes);
+            OpenFileCommand = new RelayCommand(OpenDataSetFile);
+        }
+
+        private void SetGraphLayoutTypes()
+        {
+            GraphLayoutTypes.Add("BoundedFR");
+            GraphLayoutTypes.Add("Circular");
+            GraphLayoutTypes.Add("CompoundFDP");
+            GraphLayoutTypes.Add("EfficientSugiyama");
+            GraphLayoutTypes.Add("FR");
+            GraphLayoutTypes.Add("ISOM");
+            GraphLayoutTypes.Add("KK");
+            GraphLayoutTypes.Add("LinLog");
+            GraphLayoutTypes.Add("Tree");
+
+            //Pick a default Layout Algorithm Type
+            GraphLayoutType = "EfficientSugiyama";
+        }
+
+        private void OpenDataSetFile()
+        {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            openFileDialog.Filter = OpenFileDialogFilter;
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+            DataSetFilePath = openFileDialog.FileName;
+        }
+
+        private CsvFile LoadDataSetFile(string dataSetFilePath)
+        {
+            if (dataSetFilePath == null) return null;
+            var data = readCsvFile(dataSetFilePath);
+            return data;
+        }
+
+        private void PopulateDataSet(CsvFile data)
+        {
+            DataSet = MakeDataSet(data);
+        }
+
+        private void DrawTreeGraph(CsvFile data)
+        {
+            var excludedHeaders = new List<string> { ClassHeader };
+            var treeHead = makeTree(data, excludedHeaders, null);
+            var graph = new Tree(false);
+            var tree = MakeTreeGraph(graph, treeHead.Value.Head);
+            GraphTree = graph;
         }
         #endregion
 
         #region Commands
 
         private RelayCommand _loaded;
+        private RelayCommand _openFileCommand;
 
         public RelayCommand Loaded
         {
@@ -129,6 +204,19 @@ namespace DecisionTreeMaker.ViewModel
                     _loaded = value;
                     RaisePropertyChanged(nameof(Loaded));
                 }   
+            }
+        }
+
+        public RelayCommand OpenFileCommand
+        {
+            get { return _openFileCommand; }
+            set
+            {
+                if (_openFileCommand == null)
+                {
+                    _openFileCommand = value;
+                    RaisePropertyChanged(nameof(OpenFileCommand));
+                }
             }
         }
 

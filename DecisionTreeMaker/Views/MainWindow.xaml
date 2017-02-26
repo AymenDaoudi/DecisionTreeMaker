@@ -7,6 +7,14 @@
         xmlns:viewModel="clr-namespace:DecisionTreeMaker.ViewModel"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525"
         DataContext="{Binding MainViewModel, Source={StaticResource ViewModelLocator}}">
@@ -18,17 +26,58 @@
             </i:EventTrigger>
         </i:Interaction.Triggers>
     <Grid>
-        <zoom:ZoomControl  Zoom="0.2" 
-                           ZoomBoxOpacity="0.5" 
-                           Background="#ff656565">
-            
-            <viewModel:PocGraphLayout x:Name="graphLayout" 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox Margin="5"
+                      ItemsSource="{Binding GraphLayoutTypes}"
+                      SelectedItem="{Binding GraphLayoutType, Mode=TwoWay}"/>
+            <Grid Grid.Column="1"
+                  Margin="5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox AcceptsReturn="False"
+                         IsReadOnly="True"
+                         Margin="5"
+                         Text="{Binding DataSetFilePath}"/>
+                <Button Grid.Column="1" Content="Open CSV file">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <command:EventToCommand
+                    Command="{Binding OpenFileCommand, Mode=OneWay}"
+                    PassEventArgsToCommand="False" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button> 
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <zoom:ZoomControl Zoom="0.2" 
+                          ZoomBoxOpacity="0.5" 
+                          Background="#ff656565">
+
+                <viewModel:PocGraphLayout x:Name="graphLayout" 
                                       Margin="10"
                                       Graph="{Binding Path=GraphTree, Mode=OneWay}"
-                                      LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType, Mode=OneWay}"
+                                      LayoutAlgorithmType="{Binding Path=GraphLayoutType, Mode=OneWay}"
                                       OverlapRemovalAlgorithmType="FSA"
                                       HighlightAlgorithmType="Simple" />
 
-        </zoom:ZoomControl>
+            </zoom:ZoomControl>
+            <DataGrid Grid.Column="1" ItemsSource="{Binding DataSet}"></DataGrid>
+        </Grid>
+        
     </Grid>
 </Window>
