@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using DecisionTreeMaker.Model;
@@ -41,9 +42,10 @@ namespace DecisionTreeMaker.ViewModel
             {
                 if (value == null) return;
                 _dataSetFilePath = value;
-                RaisePropertyChanged(nameof(DataSetFilePath));
-                PopulateDataSet(LoadDataSetFile(DataSetFilePath));
-                DrawTreeGraph(LoadDataSetFile(DataSetFilePath));
+                if (ConsumeFile())
+                {
+                    RaisePropertyChanged(nameof(DataSetFilePath));
+                }
             }
         }
         public string GraphLayoutType
@@ -161,8 +163,19 @@ namespace DecisionTreeMaker.ViewModel
 
         private CsvFile LoadDataSetFile(string dataSetFilePath)
         {
+            CsvFile data = null;
             if (dataSetFilePath == null) return null;
-            var data = readCsvFile(dataSetFilePath);
+            try
+            {
+                data = readCsvFile(dataSetFilePath);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(string.Concat(exception.Message, " : The provided file is empty"),
+                                "Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+            }
             return data;
         }
 
@@ -178,6 +191,34 @@ namespace DecisionTreeMaker.ViewModel
             var graph = new Tree(false);
             var tree = MakeTreeGraph(graph, treeHead.Value.Head);
             GraphTree = graph;
+        }
+
+        private bool ConsumeFile()
+        {
+            CsvFile csvData = LoadDataSetFile(DataSetFilePath);
+            try
+            {
+                if (csvData == null) return false;
+                PopulateDataSet(csvData);
+                DrawTreeGraph(csvData);
+            }
+            catch (IOException ioException)
+            {
+                MessageBox.Show(string.Concat(ioException.Message, " : The provided file is empty"),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+            catch (InvalidDataException invalidDataException)
+            {
+                MessageBox.Show(string.Concat(invalidDataException.Message, " : The last header must have the name \"Class\""),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+            return true;
         }
         #endregion
 
