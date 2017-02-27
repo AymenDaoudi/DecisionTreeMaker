@@ -19,13 +19,11 @@ namespace DecisionTreeMaker.ViewModel
     public class MainViewModel : ViewModelBase
     {
         #region Consts
-
         private const string OpenFileDialogFilter = "csv files (*.csv)|";
         private const string ClassHeader = "Class";
         #endregion
 
         #region Fields
-
         private string _dataSetFilePath;
         private string _graphLayoutType;
         private Tree _graphTree;
@@ -96,7 +94,6 @@ namespace DecisionTreeMaker.ViewModel
         private Branch AddNewBranchToGraph(Node from, Node to, string branchContent, Tree graph)
         {
             var newBranch = new Branch(branchContent, from, to);
-
             graph.AddEdge(newBranch);
             return newBranch;
         }
@@ -109,20 +106,27 @@ namespace DecisionTreeMaker.ViewModel
                 graph.AddVertex(leaf);
                 return leaf;
             }
-            else
-            {
-                var parent = new Node(tree.content, tree.isLeaf, tree.children.Value.Select(node => MakeTreeGraph(graph,node)).ToList());
-                graph.AddVertex(parent);
-                graph.AddVertexRange(parent.Children);
-                parent.Children.Select((node, i) => AddNewBranchToGraph(parent, node, tree.children.Value[i].branch.Value, graph)).ToList();
-                return parent;
-            }
+            var parent = new Node(tree.content, 
+                                  tree.isLeaf, 
+                                  tree.children
+                                      .Value
+                                      .Select(node => MakeTreeGraph(graph,node))
+                                      .ToList());
+            graph.AddVertex(parent);
+            graph.AddVertexRange(parent.Children);
+            parent.Children
+                  .Select((node, i) => AddNewBranchToGraph(parent, node, tree.children.Value[i].branch.Value, graph))
+                  .ToList();
+            return parent;
         }
 
         private DataTable MakeDataSet(CsvFile data)
         {
             var dataTable = new DataTable("DataTable");
-            dataTable.Columns.AddRange(getCsvFileHeaders(data).Select(header => new DataColumn(header, typeof(string))).ToArray());
+            dataTable.Columns
+                     .AddRange(getCsvFileHeaders(data)
+                     .Select(header => new DataColumn(header, typeof(string)))
+                     .ToArray());
             var t = getRows(data).ToList();
             t.Select(csvRow => dataTable.Rows.Add(csvRow.Cast<object>().ToArray())).ToList();
             return dataTable;
@@ -152,10 +156,12 @@ namespace DecisionTreeMaker.ViewModel
 
         private void OpenDataSetFile()
         {
-            var openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            openFileDialog.Filter = OpenFileDialogFilter;
-            openFileDialog.RestoreDirectory = true;
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Filter = OpenFileDialogFilter,
+                RestoreDirectory = true
+            };
 
             if (openFileDialog.ShowDialog() != DialogResult.OK) return;
             DataSetFilePath = openFileDialog.FileName;
@@ -163,8 +169,8 @@ namespace DecisionTreeMaker.ViewModel
 
         private CsvFile LoadDataSetFile(string dataSetFilePath)
         {
-            CsvFile data = null;
             if (dataSetFilePath == null) return null;
+            CsvFile data = null;
             try
             {
                 data = readCsvFile(dataSetFilePath);
@@ -187,9 +193,9 @@ namespace DecisionTreeMaker.ViewModel
         private void DrawTreeGraph(CsvFile data)
         {
             var excludedHeaders = new List<string> { ClassHeader };
-            var treeHead = makeTree(data, excludedHeaders, null);
+            var treeHead = makeTree(data, excludedHeaders, null).Value.ToList();
             var graph = new Tree(false);
-            var tree = MakeTreeGraph(graph, treeHead.Value.Head);
+            Node tree = MakeTreeGraph(graph, treeHead.First());
             GraphTree = graph;
         }
 
@@ -235,11 +241,9 @@ namespace DecisionTreeMaker.ViewModel
             }
             set
             {
-                if (_loaded == null)
-                {
-                    _loaded = value;
-                    RaisePropertyChanged(nameof(Loaded));
-                }   
+                if (_loaded != null) return;
+                _loaded = value;
+                RaisePropertyChanged(nameof(Loaded));
             }
         }
         public RelayCommand OpenFileCommand
@@ -247,11 +251,9 @@ namespace DecisionTreeMaker.ViewModel
             get { return _openFileCommand; }
             set
             {
-                if (_openFileCommand == null)
-                {
-                    _openFileCommand = value;
-                    RaisePropertyChanged(nameof(OpenFileCommand));
-                }
+                if (_openFileCommand != null) return;
+                _openFileCommand = value;
+                RaisePropertyChanged(nameof(OpenFileCommand));
             }
         }
 
