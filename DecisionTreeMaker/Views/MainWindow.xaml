@@ -71,14 +71,39 @@
                 BorderThickness="0,0,0,2"
                 Margin="20,0,20,5"
                 Grid.Row="1"/>
-        <Grid Grid.Row="2" Margin="0,5,0,0">
+        <Grid Grid.Row="2" 
+              Margin="0,5,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto" MinWidth="0">
-                <DataGrid ItemsSource="{Binding DataSet}" IsReadOnly="True"/>
+            <ScrollViewer Grid.Column="0" 
+                          HorizontalScrollBarVisibility="Visible" 
+                          VerticalScrollBarVisibility="Auto" 
+                          MinWidth="0" 
+                          AllowDrop="True"
+                          Drop="UIElement_OnDrop"
+                          Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Drop">
+                        <command:EventToCommand Command="{Binding DropCsvFileCommand, Mode=OneWay}"
+                                                CommandParameter="{Binding Mode=OneWay}"
+                                                PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <DataGrid ItemsSource="{Binding DataSet}" 
+                          IsReadOnly="True"
+                          AllowDrop="True"
+                          Drop="UIElement_OnDrop">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Drop">
+                            <command:EventToCommand Command="{Binding DropCsvFileCommand, Mode=OneWay}"
+                                                    CommandParameter="{Binding Mode=OneTime}"
+                                                    PassEventArgsToCommand="True" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </DataGrid>
             </ScrollViewer>
             <GridSplitter VerticalAlignment="Stretch" 
                           HorizontalAlignment="Stretch"

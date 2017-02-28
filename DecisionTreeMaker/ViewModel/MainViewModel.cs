@@ -12,6 +12,8 @@ using GraphSharp.Controls;
 using static DecisionTree;
 using static Types;
 using static CsvFileReader;
+using DataFormats = System.Windows.DataFormats;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace DecisionTreeMaker.ViewModel
 {
@@ -132,12 +134,6 @@ namespace DecisionTreeMaker.ViewModel
             return dataTable;
         }
 
-        private void SetCommands()
-        {
-            Loaded = new RelayCommand(SetGraphLayoutTypes);
-            OpenFileCommand = new RelayCommand(OpenDataSetFile);
-        }
-
         private void SetGraphLayoutTypes()
         {
             GraphLayoutTypes.Add("BoundedFR");
@@ -226,12 +222,28 @@ namespace DecisionTreeMaker.ViewModel
             }
             return true;
         }
+
+        private void SetCommands()
+        {
+            Loaded = new RelayCommand(SetGraphLayoutTypes);
+            OpenFileCommand = new RelayCommand(OpenDataSetFile);
+            DropCsvFileCommand = new RelayCommand<DragEventArgs>(DragCsvFile);
+        }
+
+        private void DragCsvFile(DragEventArgs draggedData)
+        {
+            if (!draggedData.Data.GetDataPresent(DataFormats.FileDrop)) return;
+            var files = (string[])draggedData.Data.GetData(DataFormats.FileDrop);
+            DataSetFilePath = files?.First();
+        }
+
         #endregion
 
         #region Commands
 
         private RelayCommand _loaded;
         private RelayCommand _openFileCommand;
+        private RelayCommand<DragEventArgs> _dropCsvFileCommand;
 
         public RelayCommand Loaded
         {
@@ -254,6 +266,15 @@ namespace DecisionTreeMaker.ViewModel
                 if (_openFileCommand != null) return;
                 _openFileCommand = value;
                 RaisePropertyChanged(nameof(OpenFileCommand));
+            }
+        }
+        public RelayCommand<DragEventArgs> DropCsvFileCommand
+        {
+            get { return _dropCsvFileCommand; }
+            set
+            {
+                _dropCsvFileCommand = value; 
+                RaisePropertyChanged(nameof(DropCsvFileCommand));
             }
         }
 

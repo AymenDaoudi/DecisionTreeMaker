@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using DecisionTreeMaker.ViewModel;
 
 namespace DecisionTreeMaker.Views
 {
@@ -24,6 +25,13 @@ namespace DecisionTreeMaker.Views
         {
             InitializeComponent();
 
+        }
+
+        public void UIElement_OnDrop(object sender, DragEventArgs args)
+        {
+            var vm = ((MainViewModel)this.DataContext);
+            if (vm.DropCsvFileCommand.CanExecute(args))
+                vm.DropCsvFileCommand.Execute(args);
         }
     }
 }
