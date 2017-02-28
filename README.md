@@ -1,4 +1,5 @@
 # DecisionTreeMaker
+<img src="https://github.com/AymenDaoudi/DecisionTreeMaker/blob/master/DecisionTreeMaker/Icons/DecisionTreeMakerIcon.ico" width="70">
 Simple Windows Application that draws a decision tree out of a CSV file data set
 
 ## Description
