@@ -7,11 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DecisionTreeMaker.ViewModel;
 
 namespace DecisionTreeMaker.Views
@@ -24,9 +19,7 @@ namespace DecisionTreeMaker.Views
         public MainWindow()
         {
             InitializeComponent();
-
         }
-
         public void UIElement_OnDrop(object sender, DragEventArgs args)
         {
             var vm = ((MainViewModel)this.DataContext);

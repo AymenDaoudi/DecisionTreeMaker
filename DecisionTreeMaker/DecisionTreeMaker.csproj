@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icons\DecisionTreeMakerIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\FSharp.Core.4.1.0\lib\net40\FSharp.Core.dll</HintPath>
@@ -179,6 +182,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ScreenShot\DecisionTreeMaker_Example.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\DecisionTreeMakerIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\DecisionTreeMakerIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

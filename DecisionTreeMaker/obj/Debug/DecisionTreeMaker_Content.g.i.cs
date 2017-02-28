@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("screenshot/decisiontreemaker_example.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/decisiontreemakericon.ico")]
 
 
