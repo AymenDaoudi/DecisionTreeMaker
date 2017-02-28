@@ -15,7 +15,7 @@ The input file must be CSV file that doesn't contain an ID column in the beginni
 
 ## Use
 
-The use of the application is very simple, just open a new valid CSV file by clicking on the button in the left upper corner, result will be shown as this screen shot :
+The use of the application is very simple, just open a new valid CSV file by clicking on the button in the left upper corner or by dragging it to the left area, result will be shown as this screen shot :
  
 ![alt text](https://github.com/AymenDaoudi/DecisionTreeMaker/blob/master/DecisionTreeMaker/ScreenShot/DecisionTreeMaker_Example.PNG "Example")
 
