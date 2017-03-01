@@ -12,19 +12,20 @@ open FSharp.Data.CsvExtensions
 
 
 let reduce (rows:seq<CsvRow>) 
-           (parents:seq<node>) :list<CsvRow> = let mutable reduced = rows |> Seq.toList 
-                                                                          |> immutableToMutableNodeList
-                                               if (Seq.length parents) > 1 then
-                                                   for i in 1 .. ((Seq.length parents)) do
-                                                      if not (i = (Seq.length parents)) then
-                                                         reduced <- (query {
-                                                                              for row in reduced do
-                                                                              where (row?((parents |> Seq.item (i-1)).content) = (parents |> Seq.item i).branch.Value)
-                                                                              select row
-                                                                           }
-                                                                     |> Seq.toList
-                                                                     |> immutableToMutableNodeList)
-                                               mutableToImmutableNodeList reduced
+           (parents:seq<node>) 
+           :list<CsvRow> = let mutable reduced = rows |> Seq.toList 
+                                                      |> immutableToMutableNodeList
+                           if (Seq.length parents) > 1 then
+                               for i in 1 .. ((Seq.length parents)) do
+                                  if not (i = (Seq.length parents)) then
+                                     reduced <- (query {
+                                                          for row in reduced do
+                                                          where (row?((parents |> Seq.item (i-1)).content) = (parents |> Seq.item i).branch.Value)
+                                                          select row
+                                                       }
+                                                 |> Seq.toList
+                                                 |> immutableToMutableNodeList)
+                           mutableToImmutableNodeList reduced
 
 
 
@@ -37,26 +38,31 @@ let entropy (rows:seq<CsvRow>) = tuplesCountPerClass rows |> Seq.map (fun n -> -
                                                           |> Seq.sum
                                           
 let entropiesDependingOn (rows:seq<CsvRow>) 
-                         (parents:seq<node>) = let reducedTuples = reduce rows parents
-                                               reducedTuples |> Seq.groupBy (fun row -> row?((parents |> Seq.item (Seq.length parents - 1)).content))
-                                                             |> Seq.map (fun groupedRows -> (fst groupedRows,entropy (snd groupedRows)))
-                                                             |> Seq.sortByDescending (fun e -> snd e) 
+                         (parents:seq<node>) = rows |> reduce 
+                                                   <| parents
+                                                    |> Seq.groupBy (fun row -> row?((parents |> Seq.item (Seq.length parents - 1)).content))
+                                                    |> Seq.map (fun groupedRows -> (fst groupedRows,entropy (snd groupedRows)))
+                                                    |> Seq.sortByDescending (fun e -> snd e) 
 
 let gain (s:seq<CsvRow>) 
-         (a:string) = entropy s - (s |> Seq.groupBy (fun row -> row.[a])
-                                     |> Seq.map (fun groupedRows -> ((float)(Seq.length (snd groupedRows))/(float)(rowsCount s)) * entropy (snd groupedRows))
-                                     |> Seq.sum)
+         (a:string) = s |> Seq.groupBy (fun row -> row.[a])
+                        |> Seq.map (fun groupedRows -> ((float)(Seq.length (snd groupedRows))/(float)(rowsCount s)) * entropy (snd groupedRows))
+                        |> Seq.sum
+                        |> negate
+                        |> add 
+                       <| entropy s                    
 
 let gainSuchAs (s:seq<CsvRow>) 
                (parents:seq<node>) 
                (b:string) 
-               (c:string) = let reduced = reduce s parents
-                            reduced |> Seq.groupBy (fun row -> row?((parents |> Seq.item (Seq.length parents - 1)).content))
-                                    |> Seq.filter (fun groupedRows -> (fst groupedRows) = b)
-                                    |> Seq.head
-                                    |> snd
-                                    |> gain 
-                                    <| c
+               (c:string) = s |> reduce  
+                             <| parents
+                              |> Seq.groupBy (fun row -> row?((parents |> Seq.item (Seq.length parents - 1)).content))
+                              |> Seq.filter (fun groupedRows -> (fst groupedRows) = b)
+                              |> Seq.head
+                              |> snd
+                              |> gain 
+                             <| c
 
 let rec makeTree (data:CsvFile)
                  (excludedHeaders:List<string>)
@@ -87,7 +93,7 @@ let rec makeTree (data:CsvFile)
                                        
                                        | Some(parents) -> let bestBranchEntropies = data |> getCsvFileRows
                                                                                          |> entropiesDependingOn 
-                                                                                         <| parents
+                                                                                        <| parents
 
                                                           let children = bestBranchEntropies 
                                                                          |> Seq.map (fun bestBranch 
@@ -95,7 +101,7 @@ let rec makeTree (data:CsvFile)
                                                                                           | 0. -> let node = {
                                                                                                                 content = data |> getCsvFileRows
                                                                                                                                |> reduce 
-                                                                                                                               <| parents
+                                                                                                                              <| parents
                                                                                                                                |> Seq.filter (fun row -> row?((Seq.last parents).content) = fst bestBranch)
                                                                                                                                |> Seq.map (fun row -> row?Class)        
                                                                                                                                |> Seq.head
@@ -109,9 +115,9 @@ let rec makeTree (data:CsvFile)
                                                                                                                      |> Seq.except excludedHeaders
                                                                                                                      |> Seq.maxBy (fun attribut -> data |> getCsvFileRows 
                                                                                                                                                         |> gainSuchAs 
-                                                                                                                                                        <| parents
-                                                                                                                                                        <| (fst bestBranch) 
-                                                                                                                                                        <| attribut)                                                                                                                                
+                                                                                                                                                       <| parents
+                                                                                                                                                       <| (fst bestBranch) 
+                                                                                                                                                       <| attribut)                                                                                                                                
                                                                                                  let node = {
                                                                                                                content = attribut;
                                                                                                                branch = Some(fst bestBranch);
@@ -131,10 +137,10 @@ let rec makeTree (data:CsvFile)
                                                                                                 children'.Add (None)
                                                                                 )
                                                           children |> Seq.mapi (fun i child -> {
-                                                                                                    content = child.content;
-                                                                                                    branch = child.branch;
-                                                                                                    children = children'.[i];
-                                                                                                    isLeaf = child.isLeaf;
+                                                                                                   content = child.content;
+                                                                                                   branch = child.branch;
+                                                                                                   children = children'.[i];
+                                                                                                   isLeaf = child.isLeaf;
                                                                                                })
                                                                    |> Seq.toList
                                                                    |> Some
